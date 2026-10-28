@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+    xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+    xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+    xsi:type="MailApp">
+  <Id>3d152983-635e-4fef-bf02-c919113ad95b</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Lider Atacadista</ProviderName>
+  <DefaultLocale>pt-BR</DefaultLocale>
+  <DisplayName DefaultValue="Assinatura Corporativa"/>
+  <Description DefaultValue="Assinatura automatica para Lider Atacadista e Bem Familia"/>
+  <IconUrl DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/images/logo.png"/>
+  <HighResolutionIconUrl DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/images/logo.png"/>
+  <SupportUrl DefaultValue="https://www.lideratacadista.com.br"/>
+  <AppDomains>
+    <AppDomain>https://lider-atacadista.github.io</AppDomain>
+    <AppDomain>https://static.wixstatic.com</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.10">
+      <Set Name="Mailbox"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation resid="autorun.Url"/>
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteMailbox</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+  </Rule>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.10">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="autorun.Url"/>
+          <ExtensionPoint xsi:type="LaunchEvent">
+            <LaunchEvents>
+              <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
+              <LaunchEvent Type="OnNewAppointmentAttendees" FunctionName="onNewMessageComposeHandler"/>
+            </LaunchEvents>
+            <SourceLocation resid="autorun.Url"/>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon.16" DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/images/logo.png"/>
+        <bt:Image id="icon.32" DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/images/logo.png"/>
+        <bt:Image id="icon.80" DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/images/logo.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="autorun.Url" DefaultValue="https://lider-atacadista.github.io/outlook-signature-addin/autorun.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="func.name" DefaultValue="Assinatura Corporativa"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="func.desc" DefaultValue="Aplica automaticamente a assinatura oficial da empresa"/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
