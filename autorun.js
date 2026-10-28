@@ -15,51 +15,30 @@ function onNewMessageComposeHandler(event) {
         // Determina a marca pelo domínio do UPN / E-mail
         var isBemFamilia = (email.indexOf("@bemfamilia.ind.br") !== -1);
         
-        // Tenta buscar os dados adicionais de cargo, telefone e setor no users.json
-        fetch("users.json?v=" + new Date().getTime())
-            .then(function(response) {
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
-                return response.json();
-            })
-            .then(function(usersCatalog) {
-                var userData = usersCatalog[email] || {};
-                
-                var signatureHtml = buildSignatureHtml({
-                    isBemFamilia: isBemFamilia,
-                    email: email,
-                    name: userData.name || displayName || "Colaborador",
-                    title: userData.title || "",
-                    department: userData.department || "",
-                    address: userData.address || (isBemFamilia ? "Rod. SC 445, Km 06" : "Rua José Alberto Nunes, s/n - Humaitá de Cima"),
-                    city: userData.city || (isBemFamilia ? "Içara - SC" : "Tubarão - SC"),
-                    phone: userData.phone || "",
-                    pager: userData.pager ? (" | Ramal: " + userData.pager) : "",
-                    mobile: userData.mobile || ""
-                });
+        var catalogUrl = "https://lider-atacadista.github.io/outlook-signature-addin/users.json?v=" + new Date().getTime();
 
-                applySignature(signatureHtml, event);
-            })
-            .catch(function(err) {
-                console.warn("Aviso ao carregar users.json, utilizando dados do perfil:", err);
-                
-                // Fallback com dados do perfil
-                var fallbackHtml = buildSignatureHtml({
-                    isBemFamilia: isBemFamilia,
-                    email: email,
-                    name: displayName || "Colaborador",
-                    title: "",
-                    department: "",
-                    address: isBemFamilia ? "Rod. SC 445, Km 06" : "Rua José Alberto Nunes, s/n - Humaitá de Cima",
-                    city: isBemFamilia ? "Içara - SC" : "Tubarão - SC",
-                    phone: "",
-                    pager: "",
-                    mobile: ""
+        if (typeof fetch !== "undefined") {
+            fetch(catalogUrl)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error("HTTP " + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function(usersCatalog) {
+                    var userData = usersCatalog[email] || {};
+                    var html = buildSignatureHtml(userData, isBemFamilia, email, displayName);
+                    applySignature(html, event);
+                })
+                .catch(function(err) {
+                    console.warn("Aviso ao carregar users.json, utilizando dados do perfil:", err);
+                    var fallbackHtml = buildSignatureHtml({}, isBemFamilia, email, displayName);
+                    applySignature(fallbackHtml, event);
                 });
-
-                applySignature(fallbackHtml, event);
-            });
+        } else {
+            var fallbackHtml = buildSignatureHtml({}, isBemFamilia, email, displayName);
+            applySignature(fallbackHtml, event);
+        }
     } catch (ex) {
         console.error("Exceção no tratador de eventos:", ex);
         event.completed();
@@ -80,15 +59,15 @@ function applySignature(htmlContent, event) {
     );
 }
 
-function buildSignatureHtml(d) {
-    var companyName = d.isBemFamilia ? "Bem Família" : "Lider Atacadista";
+function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
+    var companyName = isBemFamilia ? "Bem Família" : "Lider Atacadista";
     
     // Imagens hospedadas diretamente no repositório GitHub Pages
     var baseUrl = "https://lider-atacadista.github.io/outlook-signature-addin/images/";
-    var logoUrl = d.isBemFamilia 
+    var logoUrl = isBemFamilia 
         ? baseUrl + "Logo-BemFamilia.png" 
         : baseUrl + "logo.png";
-    var linkRede = d.isBemFamilia 
+    var linkRede = isBemFamilia 
         ? "https://www.instagram.com/deliciasbemfamilia" 
         : "https://www.instagram.com/lider_atacadista";
 
@@ -96,36 +75,45 @@ function buildSignatureHtml(d) {
     var icoTel = baseUrl + "ico-tel.png";
     var icoCel = baseUrl + "ico-cel.png";
 
+    var name = userData.name || displayName || "Colaborador";
+    var title = userData.title || "";
+    var department = userData.department || "";
+    var address = userData.address || (isBemFamilia ? "Rod. SC 445, Km 06" : "Rua José Alberto Nunes, s/n - Humaitá de Cima");
+    var city = userData.city || (isBemFamilia ? "Içara - SC" : "Tubarão - SC");
+    var phone = userData.phone || "";
+    var pager = userData.pager ? (" | Ramal: " + userData.pager) : "";
+    var mobile = userData.mobile || "";
+
     var cargoDepto = "";
-    if (d.title && d.department) {
-        cargoDepto = d.title + " | " + d.department;
-    } else if (d.title) {
-        cargoDepto = d.title;
-    } else if (d.department) {
-        cargoDepto = d.department;
+    if (title && department) {
+        cargoDepto = title + " | " + department;
+    } else if (title) {
+        cargoDepto = title;
+    } else if (department) {
+        cargoDepto = department;
     }
 
     var subLine = "<b>" + companyName + "</b>";
-    if (d.address) subLine += " - <i>" + d.address + "</i>";
-    if (d.city) subLine += " - <b>" + d.city + "</b>";
+    if (address) subLine += " - <i>" + address + "</i>";
+    if (city) subLine += " - <b>" + city + "</b>";
 
     var foneRow = "";
-    if (d.phone) {
+    if (phone) {
         foneRow = '<tr>' +
             '<td style="vertical-align: middle; padding-right: 8px; width: 20px;">' +
                 '<img src="' + icoTel + '" width="16" height="16" alt="Telefone" style="border: 0; display: block;">' +
             '</td>' +
-            '<td style="vertical-align: middle; color: #000000;">' + d.phone + d.pager + '</td>' +
+            '<td style="vertical-align: middle; color: #000000;">' + phone + pager + '</td>' +
         '</tr>';
     }
 
     var celRow = "";
-    if (d.mobile) {
+    if (mobile) {
         celRow = '<tr>' +
             '<td style="vertical-align: middle; padding-right: 8px; width: 20px;">' +
                 '<img src="' + icoCel + '" width="16" height="16" alt="Celular" style="border: 0; display: block;">' +
             '</td>' +
-            '<td style="vertical-align: middle; color: #000000;">' + d.mobile + '</td>' +
+            '<td style="vertical-align: middle; color: #000000;">' + mobile + '</td>' +
         '</tr>';
     }
 
@@ -140,7 +128,7 @@ function buildSignatureHtml(d) {
                     '</td>' +
                     '<td valign="top" style="padding: 0px; vertical-align: top; font-family: Arial, sans-serif; line-height: 1.3;">' +
                         '<div style="font-family: \'Arial Black\', Gadget, sans-serif; font-size: 14pt; color: #000000; font-weight: bold; margin-bottom: 2px;">' +
-                            d.name +
+                            name +
                         '</div>' +
                         (cargoDepto ? '<div style="font-family: Arial, sans-serif; font-size: 11pt; font-style: italic; color: #222222; margin-bottom: 4px;">' + cargoDepto + '</div>' : '') +
                         '<div style="font-family: Arial, sans-serif; font-size: 10pt; color: #222222; margin-bottom: 8px;">' +
@@ -152,7 +140,7 @@ function buildSignatureHtml(d) {
                                     '<img src="' + icoMail + '" width="16" height="16" alt="E-mail" style="border: 0; display: block;">' +
                                 '</td>' +
                                 '<td style="vertical-align: middle;">' +
-                                    '<a href="mailto:' + d.email + '" style="color: #000000; text-decoration: none;">' + d.email + '</a>' +
+                                    '<a href="mailto:' + email + '" style="color: #000000; text-decoration: none;">' + email + '</a>' +
                                 '</td>' +
                             '</tr>' +
                             foneRow +
@@ -169,5 +157,5 @@ function buildSignatureHtml(d) {
     '</div>';
 }
 
-// Vincula o nome da função à ação registrada no manifesto
+// Vincula os nomes das funções aos eventos registrados no manifesto
 Office.actions.associate("onNewMessageComposeHandler", onNewMessageComposeHandler);
