@@ -1,6 +1,6 @@
 /**
- * Suplemento de Assinatura Automática - Lider Atacadista & Bem Família
- * Plataforma: Microsoft 365 (Novo Outlook, OWA e Outlook Clássico)
+ * Suplemento de Assinatura Automatica - Lider Atacadista & Bem Familia
+ * Plataforma: Microsoft 365 (Novo Outlook, OWA e Outlook Classico)
  * Hospedagem: GitHub Pages (Lider-Atacadista/outlook-signature-addin)
  */
 
@@ -12,7 +12,7 @@ function onNewMessageComposeHandler(event) {
         var email = (userProfile.emailAddress || "").toLowerCase().trim();
         var displayName = userProfile.displayName || "";
         
-        // Determina a marca pelo domínio do UPN / E-mail
+        // Determina a marca pelo dominio do UPN / E-mail
         var isBemFamilia = (email.indexOf("@bemfamilia.ind.br") !== -1);
         
         var catalogUrl = "https://lider-atacadista.github.io/outlook-signature-addin/users.json?v=" + new Date().getTime();
@@ -40,7 +40,7 @@ function onNewMessageComposeHandler(event) {
             applySignature(fallbackHtml, event);
         }
     } catch (ex) {
-        console.error("Exceção no tratador de eventos:", ex);
+        console.error("Excecao no tratador de eventos:", ex);
         event.completed();
     }
 }
@@ -53,16 +53,27 @@ function applySignature(htmlContent, event) {
             if (asyncResult.status === Office.AsyncResultStatus.Failed) {
                 console.error("Erro ao aplicar assinatura:", asyncResult.error.message);
             }
-            // Obrigatório sinalizar a conclusão do evento para o Outlook
+            // Obrigatorio sinalizar a conclusao do evento para o Outlook
             event.completed();
         }
     );
 }
 
+function sanitize(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/[\u007F-\uFFFF]/g, function(c) {
+            return "&#" + c.charCodeAt(0) + ";";
+        });
+}
+
 function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
-    var companyName = isBemFamilia ? "Bem Família" : "Lider Atacadista";
+    var companyName = isBemFamilia ? "Bem Fam&iacute;lia" : "Lider Atacadista";
     
-    // Imagens hospedadas diretamente no repositório GitHub Pages
+    // Imagens hospedadas diretamente no repositorio GitHub Pages
     var baseUrl = "https://lider-atacadista.github.io/outlook-signature-addin/images/";
     var logoUrl = isBemFamilia 
         ? baseUrl + "Logo-BemFamilia.png" 
@@ -75,14 +86,14 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
     var icoTel = baseUrl + "ico-tel.png";
     var icoCel = baseUrl + "ico-cel.png";
 
-    var name = userData.name || displayName || "Colaborador";
-    var title = userData.title || "";
-    var department = userData.department || "";
-    var address = userData.address || (isBemFamilia ? "Rod. SC 445, Km 06" : "Rua José Alberto Nunes, s/n - Humaitá de Cima");
-    var city = userData.city || (isBemFamilia ? "Içara - SC" : "Tubarão - SC");
-    var phone = userData.phone || "";
-    var pager = userData.pager ? (" | Ramal: " + userData.pager) : "";
-    var mobile = userData.mobile || "";
+    var name = sanitize(userData.name || displayName || "Colaborador");
+    var title = sanitize(userData.title || "");
+    var department = sanitize(userData.department || "");
+    var address = sanitize(userData.address || (isBemFamilia ? "Rod. SC 445, Km 06" : "Rua Jos\u00E9 Alberto Nunes, s/n - Humait\u00E1 de Cima"));
+    var city = sanitize(userData.city || (isBemFamilia ? "I\u00E7ara - SC" : "Tubar\u00E3o - SC"));
+    var phone = sanitize(userData.phone || "");
+    var pager = userData.pager ? (" | Ramal: " + sanitize(userData.pager)) : "";
+    var mobile = sanitize(userData.mobile || "");
 
     var cargoDepto = "";
     if (title && department) {
@@ -117,13 +128,16 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
         '</tr>';
     }
 
+    var disclaimerPt = "Esta mensagem pode conter informa&ccedil;&otilde;es confidenciais e/ou privilegiadas. Se voc&ecirc; n&atilde;o for o destinat&aacute;rio ou a pessoa autorizada a receber esta mensagem, n&atilde;o pode usar, copiar ou divulgar as informa&ccedil;&otilde;es nela contidas ou tomar qualquer a&ccedil;&atilde;o baseada nessas informa&ccedil;&otilde;es. Se voc&ecirc; recebeu esta mensagem por engano, por favor, avise imediatamente o remetente, respondendo o e-mail, e em seguida apague-o. Agradecemos sua coopera&ccedil;&atilde;o.";
+    var disclaimerEn = "This message may contain confidential and/or privileged information. If you are not the addressee or authorized to receive this for the addressee, you must not use, copy, disclose or take any action based on this message or any information herein. If you have received this message in error, please advise the sender immediately by reply e-mail and delete this message. Thank you for your cooperation.";
+
     return '<div style="font-family: Arial, sans-serif; font-size: 10pt; color: #000000;">' +
         '<table cellpadding="0" cellspacing="0" border="0" style="font-size: 15px; border-collapse: collapse; font-family: Arial, sans-serif;">' +
             '<tbody>' +
                 '<tr>' +
                     '<td valign="top" style="padding: 0px 15px 0px 0px; vertical-align: top;">' +
                         '<a href="' + linkRede + '" target="_blank" style="text-decoration: none;">' +
-                            '<img src="' + logoUrl + '" width="150" height="150" alt="' + companyName + '" style="border: 0; display: block; width: 150px; height: 150px;">' +
+                            '<img src="' + logoUrl + '" width="150" height="150" alt="' + (isBemFamilia ? "Bem Familia" : "Lider Atacadista") + '" style="border: 0; display: block; width: 150px; height: 150px;">' +
                         '</a>' +
                     '</td>' +
                     '<td valign="top" style="padding: 0px; vertical-align: top; font-family: Arial, sans-serif; line-height: 1.3;">' +
@@ -151,11 +165,11 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
             '</tbody>' +
         '</table>' +
         '<div style="margin-top: 15px; font-family: Verdana, sans-serif; font-size: 8pt; color: #666666; font-style: italic; line-height: 1.2;">' +
-            'Esta mensagem pode conter informações confidenciais e/ou privilegiadas. Se você não for o destinatário ou a pessoa autorizada a receber esta mensagem, não pode usar, copiar ou divulgar as informações nela contidas ou tomar qualquer ação baseada nessas informações. Se você recebeu esta mensagem por engano, por favor, avise imediatamente o remetente, respondendo o e-mail, e em seguida apague-o. Agradecemos sua cooperação.<br><br>' +
-            '<span lang="EN-US">This message may contain confidential and/or privileged information. If you are not the addressee or authorized to receive this for the addressee, you must not use, copy, disclose or take any action based on this message or any information herein. If you have received this message in error, please advise the sender immediately by reply e-mail and delete this message. Thank you for your cooperation.</span>' +
+            disclaimerPt + '<br><br>' +
+            '<span lang="EN-US">' + disclaimerEn + '</span>' +
         '</div>' +
     '</div>';
 }
 
-// Vincula os nomes das funções aos eventos registrados no manifesto
+// Vincula os nomes das funcoes aos eventos registrados no manifesto
 Office.actions.associate("onNewMessageComposeHandler", onNewMessageComposeHandler);
