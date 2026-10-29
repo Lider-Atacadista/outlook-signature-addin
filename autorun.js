@@ -136,7 +136,7 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
             '<tbody>' +
                 '<tr>' +
                     '<td valign="top" style="padding: 0px 15px 0px 0px; vertical-align: top;">' +
-                        '<a href="' + linkRede + '" target="_blank" style="text-decoration: none;">' +
+                        '<a href="' + linkRede + '" target="_blank" style="text-decoration: none; cursor: pointer;">' +
                             '<img src="' + logoUrl + '" width="150" height="150" alt="' + (isBemFamilia ? "Bem Familia" : "Lider Atacadista") + '" style="border: 0; display: block; width: 150px; height: 150px;">' +
                         '</a>' +
                     '</td>' +
@@ -154,7 +154,7 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
                                     '<img src="' + icoMail + '" width="16" height="16" alt="E-mail" style="border: 0; display: block;">' +
                                 '</td>' +
                                 '<td style="vertical-align: middle;">' +
-                                    '<a href="mailto:' + email + '" style="color: #000000; text-decoration: none;">' + email + '</a>' +
+                                    '<a href="mailto:' + email + '" style="color: #0066cc; text-decoration: underline; cursor: pointer;">' + email + '</a>' +
                                 '</td>' +
                             '</tr>' +
                             foneRow +
