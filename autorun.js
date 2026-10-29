@@ -120,11 +120,23 @@ function buildSignatureHtml(userData, isBemFamilia, email, displayName) {
 
     var celRow = "";
     if (mobile) {
+        var cleanMobile = mobile.replace(/\D/g, "");
+        if (cleanMobile.length === 10 || cleanMobile.length === 11) {
+            cleanMobile = "55" + cleanMobile;
+        } else if (cleanMobile.indexOf("55") !== 0 && cleanMobile.length > 8) {
+            cleanMobile = "55" + cleanMobile;
+        }
+        var waLink = "https://wa.me/" + cleanMobile;
+
         celRow = '<tr>' +
             '<td style="vertical-align: middle; padding-right: 8px; width: 20px;">' +
-                '<img src="' + icoCel + '" width="16" height="16" alt="Celular" style="border: 0; display: block;">' +
+                '<a href="' + waLink + '" target="_blank" style="text-decoration: none; cursor: pointer;">' +
+                    '<img src="' + icoCel + '" width="16" height="16" alt="WhatsApp / Celular" style="border: 0; display: block;">' +
+                '</a>' +
             '</td>' +
-            '<td style="vertical-align: middle; color: #000000;">' + mobile + '</td>' +
+            '<td style="vertical-align: middle; color: #000000;">' +
+                '<a href="' + waLink + '" target="_blank" style="color: #000000; text-decoration: none; cursor: pointer;" title="Conversar no WhatsApp">' + mobile + '</a>' +
+            '</td>' +
         '</tr>';
     }
 
